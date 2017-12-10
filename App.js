@@ -32,8 +32,7 @@ export default class App extends React.Component {
 
     listRef.on('value', snap => {
       this.setState({
-        list: snap.val(),
-        newToDo: this.state.newToDo
+        list: snap.val()
       });
     });
   }
@@ -42,8 +41,11 @@ export default class App extends React.Component {
     if (element == "") {
       alert("You can't create a blank ToDo");
     }
+    else if (this.state.list.includes(element)) {
+      alert("ToDo already exists");
+    }
     else {
-      const rootRef = firebase.database().ref('data');
+      const rootRef = firebase.database().ref("data");
 
       let newList = this.state.list;
       newList.push(element);
@@ -51,6 +53,8 @@ export default class App extends React.Component {
       rootRef.set({
         list: newList
       });
+      
+      alert("ToDo created");
     }
   }
 
