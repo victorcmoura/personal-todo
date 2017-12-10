@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { List, ListItem } from 'react-native-elements';
 import * as firebase from 'firebase';
-import { config } from './firebaseConfigs'
+import { config } from './secrets'
 import { Card } from 'react-native-elements'
 
 export default class App extends React.Component {
@@ -32,20 +32,26 @@ export default class App extends React.Component {
 
     listRef.on('value', snap => {
       this.setState({
-        list: snap.val()
+        list: snap.val(),
+        newToDo: this.state.newToDo
       });
     });
   }
 
   writeNewElement(element) {
-    const rootRef = firebase.database().ref('data');
+    if (element == "") {
+      alert("You can't create a blank ToDo");
+    }
+    else {
+      const rootRef = firebase.database().ref('data');
 
-    let newList = this.state.list;
-    newList.push(element);
+      let newList = this.state.list;
+      newList.push(element);
 
-    rootRef.set({
-      list: newList
-    });
+      rootRef.set({
+        list: newList
+      });
+    }
   }
 
   handleFieldOnChange(field, value) {
@@ -62,11 +68,11 @@ export default class App extends React.Component {
           title={{ title: "Personal ToDo" }}
           style={styles.navBar}
         />
-        <ScrollView 
+        <ScrollView
           style={styles.scrollView}
           showsHorizontalScrollIndicator={true}
           alwaysBounceHorizontal={true}
-          >
+        >
           <List style={styles.list}>
             {
               this.state.list.map((element, i) => {
@@ -88,7 +94,7 @@ export default class App extends React.Component {
               textInputPlaceholder={"Type here your new ToDo"}
               textInputReturnKeyType={"send"}
               textInputOnChangeText={(text) => this.handleFieldOnChange("newToDo", text)}
-              onPress={this.writeNewElement(this.state.newToDo)}
+              onPress={() => this.writeNewElement(this.state.newToDo)}
             />
           </List>
         </ScrollView>
@@ -103,18 +109,18 @@ const styles = StyleSheet.create({
   },
 
   scrollView: {
-  
+
   },
 
   navBar: {
-    
+
   },
 
   list: {
-    
+
   },
 
   listItem: {
-    
+
   },
 });
