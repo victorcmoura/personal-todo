@@ -26,11 +26,7 @@ export default class App extends React.Component {
     super(props);
     this.state = {
       list: [],
-      newToDo: "",
-      selectedToDo: {
-        index: null,
-        title: ""
-      }
+      newToDo: ""
     };
 
     firebase.initializeApp(config);
@@ -43,31 +39,61 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
-    const rootRef = firebase.database().ref('data');
-    const listRef = rootRef.child('list');
+    const listRef = firebase.database().ref("data");
 
-    listRef.on('value', snap => {
-      this.setState({
-        list: snap.val()
+    if (listRef == null) {
+      
+    }
+    else {
+      listRef.on('value', snap => {
+        this.setState({
+          list: snap.val()
+        });
       });
-    });
+    }
   }
 
-  writeNewElement(element) {
+  writeNewElement() {
+    element = this.state.newToDo
+
+    console.log(element)
+
     if (element == "") {
       alert("You can't create a blank ToDo");
     }
-    else if (this.state.list.includes(element)) {
-      alert("ToDo already exists");
-    }
-    else {
-      const rootRef = firebase.database().ref("data");
+    else if (this.state.list != null) {
+      if (this.state.list.includes(element)) {
+        alert("ToDo already exists");
+      }
+      else {
+        const rootRef = firebase.database().ref();
 
-      let newList = this.state.list;
-      newList.push(element);
+        let newList = this.state.list;
+
+        if (newList == null) {
+          newList = []
+        }
+
+        newList.push(element);
+
+        rootRef.set({
+          data: newList
+        });
+
+        Toast.show({
+          text: 'ToDo created',
+          position: 'bottom',
+          buttonText: 'Ok'
+        });
+      }
+    }
+    else{
+      const rootRef = firebase.database().ref();
+
+      let newList = [element]
 
       rootRef.set({
-        list: newList
+        data: newList
       });
 
       Toast.show({
@@ -79,14 +105,14 @@ export default class App extends React.Component {
   }
 
   deleteElementFromList(index) {
-    const rootRef = firebase.database().ref("data");
+    const rootRef = firebase.database().ref();
 
     let newList = this.state.list;
 
     newList.splice(index, 1);
 
     rootRef.set({
-      list: newList
+      data: newList
     });
 
     Toast.show({
@@ -102,7 +128,7 @@ export default class App extends React.Component {
       "Do you want to delete " + '"' + element + '"' + "?",
       [
         { text: 'Delete', onPress: () => this.deleteElementFromList(index) },
-        { text: 'Cancel'}
+        { text: 'Cancel' }
       ]
     )
   }
@@ -127,31 +153,46 @@ export default class App extends React.Component {
             showsHorizontalScrollIndicator={true}
             alwaysBounceHorizontal={true}
           >
-            <List style={styles.list}>
-              {
-                this.state.list.map((element, i) => {
-                  return (
-                    <ListItem
-                      key={i}
-                      title={element}
-                      style={styles.listItem}
-                      hideChevron={true}
-                      onLongPress={() => this.deleteElementAlert(element, i)}
-                    />
-                  );
-                })
-              }
-              <ListItem
-                style={styles.listItem}
-                hideChevron={false}
-                subtitle={"Add ToDo"}
-                textInput={true}
-                textInputPlaceholder={"Type here your new ToDo"}
-                textInputReturnKeyType={"send"}
-                textInputOnChangeText={(text) => this.handleFieldOnChange("newToDo", text)}
-                onPress={() => this.writeNewElement(this.state.newToDo)}
-              />
-            </List>
+            {this.state.list == null ?
+              <List style={styles.list}>
+                <ListItem
+                  style={styles.listItem}
+                  hideChevron={false}
+                  subtitle={"Add ToDo"}
+                  textInput={true}
+                  textInputPlaceholder={"Type here your new ToDo"}
+                  textInputReturnKeyType={"send"}
+                  textInputOnChangeText={(text) => this.handleFieldOnChange("newToDo", text)}
+                  onPress={() => this.writeNewElement()}
+                />
+              </List>
+              :
+              <List style={styles.list}>
+                {
+                  this.state.list.map((element, i) => {
+                    return (
+                      <ListItem
+                        key={i}
+                        title={element}
+                        style={styles.listItem}
+                        hideChevron={true}
+                        onLongPress={() => this.deleteElementAlert(element, i)}
+                      />
+                    );
+                  })
+                }
+                <ListItem
+                  style={styles.listItem}
+                  hideChevron={false}
+                  subtitle={"Add ToDo"}
+                  textInput={true}
+                  textInputPlaceholder={"Type here your new ToDo"}
+                  textInputReturnKeyType={"send"}
+                  textInputOnChangeText={(text) => this.handleFieldOnChange("newToDo", text)}
+                  onPress={() => this.writeNewElement()}
+                />
+              </List>
+            }
           </ScrollView>
         </View>
       </Root>

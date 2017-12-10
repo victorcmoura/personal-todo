@@ -1,4 +1,6 @@
 {
+  "name": "personal-todo",
+  "displayName": "Personal ToDo",
   "expo": {
     "sdkVersion": "23.0.0"
   }
