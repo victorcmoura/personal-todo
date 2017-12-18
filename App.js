@@ -39,10 +39,12 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
+    console.log("Checking alterations on Firebase Database...")
+
     const listRef = firebase.database().ref("data");
 
     if (listRef == null) {
-      
+
     }
     else {
       listRef.on('value', snap => {
@@ -51,6 +53,7 @@ export default class App extends React.Component {
         });
       });
     }
+
   }
 
   writeNewElement() {
@@ -68,7 +71,7 @@ export default class App extends React.Component {
       else {
         const rootRef = firebase.database().ref();
 
-        let newList = this.state.list;
+        let newList = this.state.list.slice();
 
         if (newList == null) {
           newList = []
@@ -87,7 +90,7 @@ export default class App extends React.Component {
         });
       }
     }
-    else{
+    else {
       const rootRef = firebase.database().ref();
 
       let newList = [element]
@@ -109,7 +112,13 @@ export default class App extends React.Component {
 
     let newList = this.state.list;
 
+    console.log("Deleting:");
+    console.log(newList);
+
     newList.splice(index, 1);
+
+    console.log("Deleting:");
+    console.log(newList);
 
     rootRef.set({
       data: newList
@@ -141,60 +150,60 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <Root>
-        <View style={styles.container}>
-          <StatusBar hidden={true} />
-          <NavigationBar
-            title={{ title: "Personal ToDo" }}
-            style={styles.navBar}
-          />
-          <ScrollView
-            style={styles.scrollView}
-            showsHorizontalScrollIndicator={true}
-            alwaysBounceHorizontal={true}
-          >
-            {this.state.list == null ?
-              <List style={styles.list}>
-                <ListItem
-                  style={styles.listItem}
-                  hideChevron={false}
-                  subtitle={"Add ToDo"}
-                  textInput={true}
-                  textInputPlaceholder={"Type here your new ToDo"}
-                  textInputReturnKeyType={"send"}
-                  textInputOnChangeText={(text) => this.handleFieldOnChange("newToDo", text)}
-                  onPress={() => this.writeNewElement()}
-                />
-              </List>
-              :
-              <List style={styles.list}>
-                {
-                  this.state.list.map((element, i) => {
-                    return (
-                      <ListItem
-                        key={i}
-                        title={element}
-                        style={styles.listItem}
-                        hideChevron={true}
-                        onLongPress={() => this.deleteElementAlert(element, i)}
-                      />
-                    );
-                  })
-                }
-                <ListItem
-                  style={styles.listItem}
-                  hideChevron={false}
-                  subtitle={"Add ToDo"}
-                  textInput={true}
-                  textInputPlaceholder={"Type here your new ToDo"}
-                  textInputReturnKeyType={"send"}
-                  textInputOnChangeText={(text) => this.handleFieldOnChange("newToDo", text)}
-                  onPress={() => this.writeNewElement()}
-                />
-              </List>
-            }
-          </ScrollView>
-        </View>
+      <Root style={styles.container}>
+
+        <StatusBar hidden={true} />
+        <NavigationBar
+          title={{ title: "Personal ToDo" }}
+          style={styles.navBar}
+        />
+        <ScrollView
+          style={styles.scrollView}
+          showsHorizontalScrollIndicator={true}
+          alwaysBounceHorizontal={true}
+        >
+          {this.state.list == null ?
+            <List style={styles.list}>
+              <ListItem
+                style={styles.listItem}
+                hideChevron={true}
+                subtitle={"Add ToDo"}
+                textInput={true}
+                textInputPlaceholder={"Type here your new ToDo"}
+                textInputReturnKeyType={"send"}
+                textInputOnChangeText={(text) => this.handleFieldOnChange("newToDo", text)}
+                onPress={() => this.writeNewElement()}
+              />
+            </List>
+            :
+            <List style={styles.list}>
+              {
+                this.state.list.map((element, i) => {
+                  return (
+                    <ListItem
+                      key={i}
+                      title={element}
+                      style={styles.listItem}
+                      hideChevron={true}
+                      onLongPress={() => this.deleteElementAlert(element, i)}
+                    />
+                  );
+                })
+              }
+              <ListItem
+                style={styles.listItem}
+                hideChevron={true}
+                subtitle={"Add ToDo"}
+                textInput={true}
+                textInputPlaceholder={"Type here your new ToDo"}
+                textInputReturnKeyType={"send"}
+                textInputOnChangeText={(text) => this.handleFieldOnChange("newToDo", text)}
+                onPress={() => this.writeNewElement()}
+              />
+            </List>
+          }
+        </ScrollView>
+
       </Root>
     );
   }
