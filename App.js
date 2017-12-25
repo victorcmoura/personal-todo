@@ -112,13 +112,7 @@ export default class App extends React.Component {
 
     let newList = this.state.list;
 
-    console.log("Deleting:");
-    console.log(newList);
-
     newList.splice(index, 1);
-
-    console.log("Deleting:");
-    console.log(newList);
 
     rootRef.set({
       data: newList
@@ -129,6 +123,23 @@ export default class App extends React.Component {
       position: 'bottom',
       buttonText: 'Ok'
     });
+  }
+
+  editElement(index, element) {
+    const rootRef = firebase.database().ref("data/" + index);
+
+    if (element == "") {
+      alert("Please write something to edit");
+    }
+    else {
+      rootRef.set(element);
+
+      Toast.show({
+        text: 'ToDo edited',
+        position: 'bottom',
+        buttonText: 'Ok'
+      });
+    }
   }
 
   deleteElementAlert(element, index) {
@@ -186,6 +197,7 @@ export default class App extends React.Component {
                       style={styles.listItem}
                       hideChevron={true}
                       onLongPress={() => this.deleteElementAlert(element, i)}
+                      onPress={() => this.editElement(i, this.state.newToDo)}
                     />
                   );
                 })
@@ -195,7 +207,7 @@ export default class App extends React.Component {
                 hideChevron={true}
                 subtitle={"Add ToDo"}
                 textInput={true}
-                textInputPlaceholder={"Type here your new ToDo"}
+                textInputPlaceholder={"Type here your ToDo"}
                 textInputReturnKeyType={"send"}
                 textInputOnChangeText={(text) => this.handleFieldOnChange("newToDo", text)}
                 onPress={() => this.writeNewElement()}
